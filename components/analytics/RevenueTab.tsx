@@ -47,12 +47,12 @@ export function RevenueTab({ data }: RevenueTabProps) {
     <div className="flex flex-col gap-6">
       {/* ── Scorecards ── */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <ScoreCard icon={<DollarSign className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Total Revenue" value={formatVNDShort(scorecards.totalRevenue)} />
-        <ScoreCard icon={<TrendingUp className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="New Revenue" value={formatVNDShort(scorecards.newRevenue)} />
-        <ScoreCard icon={<RefreshCw className="size-5" />} iconBg="bg-cyan-50 text-cyan-600" label="Expansion Revenue" value={formatVNDShort(scorecards.expansionRevenue)} />
-        <ScoreCard icon={<Package className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Avg Deal Size" value={formatVNDShort(scorecards.avgDealSize)} />
-        <ScoreCard icon={<Award className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Top Package" value={scorecards.topPackage} />
-        <ScoreCard icon={<AlertTriangle className="size-5" />} iconBg="bg-rose-50 text-rose-600" label="Expiring Revenue (30d)" value={formatVNDShort(scorecards.expiringRevenue)} />
+        <ScoreCard icon={<DollarSign className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Tổng Doanh thu" value={formatVNDShort(scorecards.totalRevenue)} />
+        <ScoreCard icon={<TrendingUp className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Doanh thu mới" value={formatVNDShort(scorecards.newRevenue)} />
+        <ScoreCard icon={<RefreshCw className="size-5" />} iconBg="bg-cyan-50 text-cyan-600" label="Doanh thu Nâng cấp" value={formatVNDShort(scorecards.expansionRevenue)} />
+        <ScoreCard icon={<Package className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Giá trị TB/Đơn" value={formatVNDShort(scorecards.avgDealSize)} />
+        <ScoreCard icon={<Award className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Gói hàng đầu" value={scorecards.topPackage} />
+        <ScoreCard icon={<AlertTriangle className="size-5" />} iconBg="bg-rose-50 text-rose-600" label="DS Sắp hết hạn (30 ngày)" value={formatVNDShort(scorecards.expiringRevenue)} />
       </div>
 
       {/* ── Charts Row 1 ── */}
@@ -62,7 +62,7 @@ export function RevenueTab({ data }: RevenueTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <TrendingUp className="size-4 text-emerald-500" />
-              Revenue Waterfall — New vs Expansion
+              Biểu đồ Doanh thu — Mới vs Nâng cấp
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -73,10 +73,10 @@ export function RevenueTab({ data }: RevenueTabProps) {
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickFormatter={(v) => formatVNDShort(v)} tickLine={false} axisLine={false} width={55} />
                   <Tooltip
-                    formatter={(value: any, name: any) => [formatVND(value), name === 'newRev' ? 'New' : 'Expansion']}
+                    formatter={(value: any, name: any) => [formatVND(value), name === 'newRev' ? 'Doanh thu mới' : 'Nâng cấp']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                   />
-                  <Legend formatter={(v) => (v === 'newRev' ? 'New Revenue' : 'Expansion')} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                   <Legend formatter={(v) => (v === 'newRev' ? 'Doanh thu mới' : 'Nâng cấp')} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
                   <Bar dataKey="newRev" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
                   <Bar dataKey="expRev" stackId="a" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -90,7 +90,7 @@ export function RevenueTab({ data }: RevenueTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Package className="size-4 text-indigo-500" />
-              Package Revenue Mix (Monthly)
+              Cơ cấu Doanh thu theo Gói (Hàng tháng)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -159,7 +159,7 @@ export function RevenueTab({ data }: RevenueTabProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
             <Award className="size-4 text-amber-500" />
-            Top 20 Customers by LTV
+            Top 20 Khách hàng theo LTV (Giá trị vòng đời)
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-2 pb-4 overflow-x-auto">
@@ -167,10 +167,10 @@ export function RevenueTab({ data }: RevenueTabProps) {
             <thead>
               <tr className="border-b border-zinc-100">
                 <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">#</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Business</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Total Revenue</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Transactions</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">LTV Bar</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Doanh nghiệp</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Tổng Doanh thu</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Giao dịch</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Thanh LTV</th>
               </tr>
             </thead>
             <tbody>

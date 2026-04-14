@@ -45,9 +45,9 @@ interface LifecycleTabProps {
 const CARD_STYLE = 'bg-white border border-zinc-100 shadow-sm hover:shadow-md transition-shadow duration-200 rounded-2xl'
 
 const RISK_BADGE: Record<string, { label: string; bg: string; text: string }> = {
-  healthy: { label: '🟢 Healthy', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  at_risk: { label: '🟡 At Risk', bg: 'bg-amber-50', text: 'text-amber-700' },
-  critical: { label: '🔴 Critical', bg: 'bg-rose-50', text: 'text-rose-700' },
+  healthy: { label: '🟢 Khỏe mạnh', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  at_risk: { label: '🟡 Rủi ro', bg: 'bg-amber-50', text: 'text-amber-700' },
+  critical: { label: '🔴 Nguy kịch', bg: 'bg-rose-50', text: 'text-rose-700' },
 }
 
 export function LifecycleTab({ data }: LifecycleTabProps) {
@@ -59,11 +59,11 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
     <div className="flex flex-col gap-6">
       {/* ── Scorecards ── */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
-        <ScoreCard icon={<Users className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="New Trials" value={scorecards.newTrials.toLocaleString()} />
-        <ScoreCard icon={<Zap className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Converted" value={scorecards.converted.toLocaleString()} />
-        <ScoreCard icon={<Clock className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Avg Trial Duration" value={`${scorecards.avgTrialDuration}d`} />
-        <ScoreCard icon={<Skull className="size-5" />} iconBg="bg-rose-50 text-rose-600" label="Trials Expired" value={scorecards.expiredTrials.toLocaleString()} />
-        <ScoreCard icon={<Target className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Trial Conv Rate" value={`${scorecards.trialConvRate}%`} />
+        <ScoreCard icon={<Users className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Trial mới" value={scorecards.newTrials.toLocaleString()} />
+        <ScoreCard icon={<Zap className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Đã chuyển đổi" value={scorecards.converted.toLocaleString()} />
+        <ScoreCard icon={<Clock className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Thời gian Trial TB" value={`${scorecards.avgTrialDuration} ngày`} />
+        <ScoreCard icon={<Skull className="size-5" />} iconBg="bg-rose-50 text-rose-600" label="Trial đã hết hạn" value={scorecards.expiredTrials.toLocaleString()} />
+        <ScoreCard icon={<Target className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Tỉ lệ chuyển đổi nội bộ" value={`${scorecards.trialConvRate}%`} />
       </div>
 
       {/* ── Full Funnel + Days-to-Convert ── */}
@@ -73,7 +73,7 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Target className="size-4 text-emerald-500" />
-              Full Lifecycle Funnel
+              Phễu Vòng đời khách hàng Full-stage
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-5 px-5">
@@ -177,7 +177,7 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Clock className="size-4 text-indigo-500" />
-              Days-to-Convert Distribution
+              Phân bổ thời gian chuyển đổi (Ngày)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -188,9 +188,9 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
                   <XAxis dataKey="range" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} width={35} />
                   <Tooltip
-                    formatter={(value: any, name: any) => [value, 'Customers']}
+                    formatter={(value: any, name: any) => [value, 'Khách hàng']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
-                    labelFormatter={(v) => `${v} days`}
+                    labelFormatter={(v) => `${v} ngày`}
                   />
                   <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} barSize={36} />
                 </BarChart>
@@ -205,7 +205,7 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
             <CalendarDays className="size-4 text-rose-500" />
-            Expiring Plan Calendar (30 ngày tới)
+            Lịch gói sắp hết hạn (30 ngày tới)
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-2 pb-4">
@@ -225,7 +225,7 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
                   <p className="text-[9px] text-zinc-400">{new Date(d.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}</p>
                   <p className={`text-sm font-bold ${isHigh ? 'text-rose-600' : 'text-zinc-700'}`}>{d.count}</p>
                   <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-900 text-white text-[10px] rounded py-1 px-2 -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap z-50 pointer-events-none">
-                    {d.date}: {d.count} plans
+                    {d.date}: {d.count} gói
                   </div>
                 </div>
               )
@@ -239,20 +239,20 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
             <Users className="size-4 text-blue-500" />
-            Lifecycle Stage Table
+            Bảng Giai đoạn Vòng đời Khách hàng
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-2 pb-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-100">
-                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Business</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Doanh nghiệp</th>
                 <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Sales Rep</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Plan</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Status</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Days Left</th>
-                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Revenue</th>
-                <th className="text-center py-2 px-3 text-xs font-semibold text-zinc-500">Risk</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Gói</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Trạng thái</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Ngày còn lại</th>
+                <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Doanh thu</th>
+                <th className="text-center py-2 px-3 text-xs font-semibold text-zinc-500">Rủi ro</th>
               </tr>
             </thead>
             <tbody>

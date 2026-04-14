@@ -1,172 +1,98 @@
-import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BarChart3, TrendingUp, Users, Activity, ShoppingCart, Target } from 'lucide-react'
+import { 
+  getOverviewData, 
+  getDashboardSidebarStats 
+} from '@/lib/analytics-data'
+import { OverviewTab } from '@/components/analytics/OverviewTab'
+import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
+import { BarChart3, Clock, Rocket } from 'lucide-react'
+
+export const metadata = {
+  title: 'Dashboard | Smax CDP',
+  description: 'Trung tâm chỉ huy dữ liệu khách hàng Smax.',
+}
+
+export const revalidate = 60 // Update every minute for real-time feel
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  // Parallel fetch both datasets
+  const [overviewData, sidebarData] = await Promise.all([
+    getOverviewData(),
+    getDashboardSidebarStats(),
+  ])
 
-  // Fetch metrics from synced tables
-  const { data: ga4Data } = await supabase.from('ga4_metrics').select('*').order('date', { ascending: false }).limit(7)
-  const { data: recentPurchases } = await supabase.from('purchased_plans').select('*').order('purchase_date', { ascending: false }).limit(4)
-  const { data: leads } = await supabase.from('marketing_leads').select('*').order('created_at', { ascending: false }).limit(4)
-  
-  // Aggregate stats (fallback to 0 if no data)
-  const totalRevenue = recentPurchases?.reduce((acc, p) => acc + Number(p.amount), 0) || 0
-  const activeUsers = ga4Data?.[0]?.active_users || 0
-  const conversionRate = ga4Data?.[0]?.engagement_rate ? (ga4Data[0].engagement_rate * 100).toFixed(1) : 0
-  const totalLeads = leads?.length || 0
-
-  const stats = [
-    {
-      title: 'Current Revenue',
-      value: `$${totalRevenue.toLocaleString()}`,
-      change: '+12% from last sync',
-      icon: ShoppingCart,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-    },
-    {
-      title: 'GA4 Active Users',
-      value: activeUsers.toLocaleString(),
-      change: 'Real-time from Google',
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-    },
-    {
-      title: 'Engagement Rate',
-      value: `${conversionRate}%`,
-      change: 'Avg. across all pages',
-      icon: Target,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-    },
-    {
-      title: 'Marketing Leads',
-      value: totalLeads.toString(),
-      change: 'Latest from Sheets',
-      icon: Activity,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-    },
-  ]
+  if (!overviewData || !sidebarData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="bg-zinc-100 p-4 rounded-2xl mb-4">
+          <BarChart3 className="size-8 text-zinc-400" />
+        </div>
+        <h2 className="text-xl font-bold text-zinc-900">Không có dữ liệu</h2>
+        <p className="text-sm text-zinc-500 mt-2 max-w-sm">
+          Vui lòng kiểm tra lại kết nối Supabase hoặc cấu hình đồng bộ dữ liệu GA4/Sheets.
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto w-full pb-10">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 font-sans">Smax Analytics Intelligence</h1>
-        <p className="text-zinc-500 font-medium tracking-tight">Consolidated view of Google Sheets and GA4 internal data.</p>
+    <div className="flex flex-col gap-8 pb-10">
+      {/* ── Dashboard Header ── */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="bg-zinc-900 p-3 rounded-2xl shadow-xl shadow-zinc-200">
+            <Rocket className="size-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-zinc-900">Smax Intelligence Dashboard</h1>
+            <p className="text-xs text-zinc-400 font-medium mt-0.5 flex items-center gap-1.5">
+              <Clock className="size-3" />
+              Dữ liệu hợp nhất GA4 & Google Sheets · Cập nhật mỗi 60 giây
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none">Status</span>
+            <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5 mt-1">
+              <div className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Dữ liệu đang Live
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} className="border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`size-4 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-black text-zinc-900 tracking-tight">{stat.value}</div>
-              <p className={`text-xs mt-2 font-semibold ${stat.color}`}>
-                {stat.change}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        {/* Recent Purchases (from Google Sheets) */}
-        <Card className="col-span-4 border-zinc-200 bg-white shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-zinc-900">Recent Transactions</CardTitle>
-            <CardDescription className="text-zinc-500 font-medium">
-              Directly synced from "Database gói cước vừa mua".
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {recentPurchases?.length ? recentPurchases.map((purchase) => (
-                <div key={purchase.id} className="flex items-center gap-4 border-b border-zinc-100 pb-6 last:border-0 last:pb-0">
-                  <div className="size-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                    <ShoppingCart className="size-5 text-emerald-600" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-bold text-zinc-900">{purchase.package_name}</p>
-                    <p className="text-xs text-zinc-500 font-medium">{purchase.customer_email}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-black text-zinc-900">${Number(purchase.amount).toLocaleString()}</div>
-                    <div className="text-[10px] font-bold text-zinc-400 uppercase">{new Date(purchase.purchase_date).toLocaleDateString()}</div>
-                  </div>
-                </div>
-              )) : (
-                <div className="text-center py-10 text-zinc-400 font-medium">No purchase data synced yet.</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Marketing Leads (from Google Sheets) */}
-        <Card className="col-span-3 border-zinc-200 bg-white shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-zinc-900">Incoming Leads</CardTitle>
-            <CardDescription className="text-zinc-500 font-medium">
-              Synced from "Leads marketing".
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-             <div className="space-y-6">
-               {leads?.length ? leads.map((lead) => (
-                 <div key={lead.id} className="flex items-center gap-4">
-                    <div className="size-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 font-bold text-[10px]">
-                      {lead.lead_name?.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-zinc-900 leading-none">{lead.lead_name}</p>
-                      <p className="text-xs text-zinc-400 mt-1">{lead.source}</p>
-                    </div>
-                    <div className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase">
-                      {lead.campaign}
-                    </div>
-                 </div>
-               )) : (
-                 <div className="text-center py-10 text-zinc-400 font-medium">No leads synced yet.</div>
-               )}
+      {/* ── Main Layout: Unified Container ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 border border-zinc-200/60 rounded-[2.5rem] bg-white overflow-hidden shadow-sm">
+        
+        {/* Left Column: Analytics Overview (3/4) */}
+        <div className="lg:col-span-3 p-6 lg:p-10 flex flex-col gap-10">
+           <OverviewTab data={overviewData} />
+           
+           {/* Additional Context/Help Card */}
+           <div className="bg-zinc-900 rounded-[2rem] p-8 text-white relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+             <div className="relative z-10">
+               <h3 className="text-lg font-bold mb-2 font-sans tracking-tight">Cần tuỳ chỉnh báo cáo?</h3>
+               <p className="text-sm text-zinc-400 max-w-md leading-relaxed">
+                 Hệ thống CDP có thể kết nối thêm các nguồn dữ liệu từ Facebook Ads API, CRM hoặc Chatbot. 
+                 Hãy liên hệ đội ngũ Kỹ thuật nếu muốn đo lường sâu hơn.
+               </p>
+               <button className="mt-6 bg-white text-zinc-900 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-100 transition-colors shadow-lg">
+                 Yêu cầu Custom Dashboard
+               </button>
              </div>
-          </CardContent>
-        </Card>
-      </div>
+           </div>
+        </div>
 
-      {/* GA4 Health Chart Placeholder */}
-      <Card className="border-zinc-200 bg-white shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-zinc-900">GA4 Traffic Trends</CardTitle>
-          <CardDescription className="text-zinc-500 font-medium">
-            Daily active users and sessions over the last 7 days.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="h-[200px] flex items-end justify-between gap-2 px-10">
-          {ga4Data?.length ? [...ga4Data].reverse().map((day) => (
-            <div key={day.date} className="flex-1 flex flex-col items-center gap-2 group">
-              <div 
-                className="w-full bg-blue-500 rounded-t-sm transition-all group-hover:bg-blue-600" 
-                style={{ height: `${(day.active_users / (Math.max(...ga4Data.map(d => d.active_users)) || 1)) * 150}px` }}
-              ></div>
-              <span className="text-[10px] font-bold text-zinc-400 uppercase">{new Date(day.date).toLocaleDateString(undefined, { weekday: 'short' })}</span>
-            </div>
-          )) : (
-            <div className="w-full h-full flex items-center justify-center text-zinc-400 font-medium border-2 border-dashed border-zinc-100 rounded-xl">
-              Charts will appear once GA4 data is synced.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* Right Column: Real-time Stats Sidebar (1/4) with subtle background */}
+        <aside className="lg:col-span-1 bg-zinc-50/50 border-t lg:border-t-0 lg:border-l border-zinc-100 p-6 lg:p-8">
+          <div className="sticky top-10">
+            <DashboardSidebar data={sidebarData} />
+          </div>
+        </aside>
+
+      </div>
     </div>
   )
 }

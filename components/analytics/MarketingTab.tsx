@@ -37,11 +37,11 @@ export function MarketingTab({ data }: MarketingTabProps) {
     <div className="flex flex-col gap-6">
       {/* ── Scorecards ── */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
-        <ScoreCard icon={<Mail className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Total Leads" value={scorecards.totalLeads.toLocaleString()} />
-        <ScoreCard icon={<CheckCircle className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Converted Leads" value={scorecards.convertedLeads.toLocaleString()} />
-        <ScoreCard icon={<BarChart3 className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Lead → Customer" value={`${scorecards.leadConvRate}%`} />
-        <ScoreCard icon={<DollarSign className="size-5" />} iconBg="bg-cyan-50 text-cyan-600" label="Revenue / Lead" value={formatVNDShort(scorecards.revenuePerLead)} />
-        <ScoreCard icon={<Award className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Best Channel" value={scorecards.bestChannel.length > 18 ? scorecards.bestChannel.substring(0, 15) + '...' : scorecards.bestChannel} />
+        <ScoreCard icon={<Mail className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Tổng Leads" value={scorecards.totalLeads.toLocaleString()} />
+        <ScoreCard icon={<CheckCircle className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Leads đã Chuyển đổi" value={scorecards.convertedLeads.toLocaleString()} />
+        <ScoreCard icon={<BarChart3 className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Lead → Khách hàng" value={`${scorecards.leadConvRate}%`} />
+        <ScoreCard icon={<DollarSign className="size-5" />} iconBg="bg-cyan-50 text-cyan-600" label="Doanh thu / Lead" value={formatVNDShort(scorecards.revenuePerLead)} />
+        <ScoreCard icon={<Award className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Kênh tốt nhất" value={scorecards.bestChannel.length > 18 ? scorecards.bestChannel.substring(0, 15) + '...' : scorecards.bestChannel} />
       </div>
 
       {/* ── Charts Row 1 ── */}
@@ -51,7 +51,7 @@ export function MarketingTab({ data }: MarketingTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <BarChart3 className="size-4 text-blue-600" />
-              Lead Volume by Source (Top 10)
+              Số lượng Lead theo Nguồn (Top 10)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -62,7 +62,7 @@ export function MarketingTab({ data }: MarketingTabProps) {
                   <XAxis type="number" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} width={130} />
                   <Tooltip
-                    formatter={(value: any, name: any) => [value, name === 'leads' ? 'Total Leads' : 'Converted']}
+                    formatter={(value: any, name: any) => [value, name === 'leads' ? 'Tổng Leads' : 'Đã chuyển đổi']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                   />
                   <Bar dataKey="leads" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={14} name="leads" />
@@ -78,18 +78,18 @@ export function MarketingTab({ data }: MarketingTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <CheckCircle className="size-4 text-emerald-500" />
-              Lead Funnel by Source
+              Phễu chuyển đổi theo Nguồn
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-100">
-                  <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Source</th>
+                  <th className="text-left py-2 px-3 text-xs font-semibold text-zinc-500">Nguồn</th>
                   <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Leads</th>
-                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Converted</th>
-                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Conv %</th>
-                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Funnel</th>
+                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Đã chuyển đổi</th>
+                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Tỉ lệ %</th>
+                  <th className="text-right py-2 px-3 text-xs font-semibold text-zinc-500">Phễu</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,9 +124,9 @@ export function MarketingTab({ data }: MarketingTabProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
             <BarChart3 className="size-4 text-indigo-500" />
-            Campaign Performance Matrix
+            Ma trận Hiệu suất Chiến dịch
           </CardTitle>
-          <p className="text-[11px] text-zinc-400 mt-1">X: Volume leads · Y: Conversion Rate · Bubble: Revenue</p>
+          <p className="text-[11px] text-zinc-400 mt-1">X: Số lượng leads · Y: Tỉ lệ chuyển đổi · Bong bóng: Doanh thu</p>
         </CardHeader>
         <CardContent className="pt-2 pb-4">
           <div className="h-[350px]">
@@ -140,18 +140,18 @@ export function MarketingTab({ data }: MarketingTabProps) {
                   tick={{ fontSize: 11, fill: '#a1a1aa' }}
                   tickLine={false}
                   axisLine={{ stroke: '#e4e4e7' }}
-                  label={{ value: 'Volume Leads', position: 'bottom', fontSize: 11, fill: '#a1a1aa' }}
+                  label={{ value: 'Số lượng Leads', position: 'bottom', fontSize: 11, fill: '#a1a1aa' }}
                 />
                 <YAxis
                   dataKey="convRate"
                   type="number"
-                  name="Conv Rate"
+                  name="Tỉ lệ Chuyển đổi"
                   tick={{ fontSize: 11, fill: '#a1a1aa' }}
                   tickLine={false}
                   axisLine={false}
-                  label={{ value: 'Conversion %', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#a1a1aa' }}
+                  label={{ value: 'Tỉ lệ Chuyển đổi %', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#a1a1aa' }}
                 />
-                <ZAxis dataKey="revenue" range={[50, 800]} name="Revenue" />
+                <ZAxis dataKey="revenue" range={[50, 800]} name="Doanh thu" />
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || !payload[0]) return null
@@ -160,8 +160,8 @@ export function MarketingTab({ data }: MarketingTabProps) {
                       <div className="bg-zinc-900 text-white text-xs rounded-xl py-2 px-3 shadow-lg">
                         <p className="font-semibold">{d.fullName || d.name}</p>
                         <p>Leads: {d.leads}</p>
-                        <p>Conv: {d.convRate}%</p>
-                        <p>Revenue: {formatVNDShort(d.revenue)}</p>
+                        <p>Chuyển đổi: {d.convRate}%</p>
+                        <p>Doanh thu: {formatVNDShort(d.revenue)}</p>
                       </div>
                     )
                   }}

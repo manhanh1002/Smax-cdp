@@ -65,7 +65,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
           iconBg="bg-indigo-50 text-indigo-600"
           label="Conversion Rate"
           value={`${scorecards.conversionRate}%`}
-          sub="Active / (Active + Trial)"
+          sub="Khách Active / (Active + Trial)"
         />
         <ScorecardItem
           icon={<RefreshCw className="size-5" />}
@@ -83,7 +83,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <BarChart3 className="size-4 text-blue-600" />
-              Revenue Trend (12 tháng)
+              Xu hướng Doanh thu (12 tháng)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -107,7 +107,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                   <Tooltip
                     formatter={(value: any, name: any) => [
                       formatVND(value),
-                      name === 'newRev' ? 'New Revenue' : 'Expansion Revenue',
+                      name === 'newRev' ? 'Doanh thu mới' : 'Doanh thu nâng cấp',
                     ]}
                     contentStyle={{
                       background: '#18181b',
@@ -120,7 +120,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                     labelStyle={{ color: '#a1a1aa', marginBottom: '4px' }}
                   />
                   <Legend
-                    formatter={(value) => (value === 'newRev' ? 'New Revenue' : 'Expansion Revenue')}
+                    formatter={(value) => (value === 'newRev' ? 'Doanh thu mới' : 'Doanh thu nâng cấp')}
                     iconType="circle"
                     wrapperStyle={{ fontSize: '12px' }}
                   />
@@ -137,7 +137,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Users className="size-4 text-indigo-500" />
-              Customer Status
+              Trạng thái Khách hàng
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -212,7 +212,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                   width={70}
                 />
                 <Tooltip
-                  formatter={(value: any) => [formatVND(value), 'Revenue']}
+                  formatter={(value: any) => [formatVND(value), 'Doanh thu']}
                   contentStyle={{
                     background: '#18181b',
                     border: 'none',
@@ -254,7 +254,7 @@ function ScorecardItem({
           <div className={`${iconBg} p-2 rounded-xl`}>{icon}</div>
           {badge === 'urgent' && (
             <span className="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
-              URGENT
+              KHẨN CẤP
             </span>
           )}
         </div>

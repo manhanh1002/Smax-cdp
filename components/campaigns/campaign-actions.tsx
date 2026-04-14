@@ -21,9 +21,9 @@ export default function CampaignActions({ campaignId, currentStatus, triggerMode
     setLoading(true)
     const res = await toggleCampaignStatus(campaignId, currentStatus)
     if (res.success) {
-      toast.success(`Campaign ${currentStatus === 'active' ? 'paused' : 'started'}`)
+      toast.success(`Chiến dịch đã ${currentStatus === 'active' ? 'tạm dừng' : 'bắt đầu'}`)
     } else {
-      toast.error("Failed to update status")
+      toast.error("Cập nhật trạng thái thất bại")
     }
     setLoading(false)
   }
@@ -43,12 +43,12 @@ export default function CampaignActions({ campaignId, currentStatus, triggerMode
       
       const data = await response.json()
       if (response.ok) {
-        toast.success(`Bulk execution finished: ${data.processed} processed`)
+        toast.success(`Đã xử lý xong: ${data.processed} khách hàng`)
       } else {
-        toast.error(`Error: ${data.error}`)
+        toast.error(`Lỗi: ${data.error}`)
       }
     } catch (e) {
-      toast.error("Network error during execution")
+      toast.error("Lỗi mạng khi thực thi")
     } finally {
       setRunning(false)
     }
@@ -58,7 +58,7 @@ export default function CampaignActions({ campaignId, currentStatus, triggerMode
     <div className="flex items-center gap-4 w-full mt-4">
       <Link href={`/campaigns/${campaignId}`} className="flex-1">
         <Button variant="outline" size="sm" className="w-full rounded-2xl border-zinc-200 font-bold text-zinc-600 hover:bg-zinc-100 h-12 transition-all">
-          View Logs
+          Xem Nhật ký
         </Button>
       </Link>
       
@@ -70,7 +70,7 @@ export default function CampaignActions({ campaignId, currentStatus, triggerMode
           disabled={running}
         >
           <RefreshCw className={cn("mr-2 h-4 w-4", running && "animate-spin")} />
-          {running ? 'Running...' : 'Run Now'}
+          {running ? 'Đang chạy...' : 'Chạy ngay'}
         </Button>
       ) : (
         <Button 
@@ -85,7 +85,7 @@ export default function CampaignActions({ campaignId, currentStatus, triggerMode
           disabled={loading}
         >
           {currentStatus === 'active' ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
-          {currentStatus === 'active' ? 'Pause' : 'Start'}
+          {currentStatus === 'active' ? 'Tạm dừng' : 'Bắt đầu'}
         </Button>
       )}
     </div>

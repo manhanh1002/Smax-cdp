@@ -19,20 +19,20 @@ export default async function CampaignsPage() {
     <div className="space-y-8 max-w-[1600px] mx-auto w-full pb-10 p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 pb-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 font-sans">Campaign Automation</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 font-sans">Chiến dịch Tự động</h1>
           <p className="text-zinc-500 font-medium tracking-tight">
-            Orchestrate data flow from smart segments to your external ecosystem.
+            Điều phối luồng dữ liệu từ phân khúc thông minh đến hệ sinh thái bên ngoài của bạn.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/customers/segments">
             <Button variant="outline" className="rounded-xl border-zinc-200 font-bold text-zinc-600 hover:bg-zinc-50 px-6 py-6 transition-all shadow-sm">
-              <Users className="mr-2 h-4 w-4" /> Manage Segments
+              <Users className="mr-2 h-4 w-4" /> Quản lý Phân khúc
             </Button>
           </Link>
           <Link href="/campaigns/new">
             <Button className="bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl px-8 py-6 font-bold shadow-lg shadow-zinc-200 transition-all hover:scale-[1.02]">
-              <Plus className="mr-2 h-5 w-5" /> Create Campaign
+              <Plus className="mr-2 h-5 w-5" /> Tạo Chiến dịch
             </Button>
           </Link>
         </div>
@@ -55,7 +55,7 @@ export default async function CampaignsPage() {
                 </Badge>
                 <div className="flex items-center gap-1.5 text-zinc-400 group-hover:text-zinc-900 transition-colors">
                    {campaign.trigger_mode === 'bulk' ? <RefreshCw className="h-4 w-4" /> : <Zap className="h-4 w-4 fill-indigo-500 text-indigo-500" />}
-                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">{campaign.trigger_mode}</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">{campaign.trigger_mode === 'bulk' ? 'Hàng loạt' : 'Real-time'}</span>
                 </div>
               </div>
 
@@ -64,15 +64,15 @@ export default async function CampaignsPage() {
               </h3>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Target Segment</div>
+                <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Phân khúc Mục tiêu</div>
                 <div className="text-sm font-bold text-zinc-700 bg-zinc-50 px-3 py-1 rounded-lg border border-zinc-100">
-                  {campaign.dynamic_segments?.name || 'Deleted'}
+                  {campaign.dynamic_segments?.name || 'Đã xóa'}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="bg-zinc-50 p-3 rounded-2xl border border-zinc-100">
-                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Action Protocol</div>
+                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Giao thức Hành động</div>
                   <div className="flex items-center gap-1.5">
                     {campaign.action_type === 'n8n' ? (
                       <div className="flex items-center gap-1.5 text-blue-600 font-bold text-xs uppercase">
@@ -86,9 +86,9 @@ export default async function CampaignsPage() {
                   </div>
                 </div>
                 <div className="bg-zinc-50 p-3 rounded-2xl border border-zinc-100">
-                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Last Sync</div>
+                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-1">Đồng bộ cuối</div>
                   <div className="text-xs font-bold text-zinc-700 leading-none">
-                    {campaign.last_run ? new Date(campaign.last_run).toLocaleDateString('vi-VN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never'}
+                    {campaign.last_run ? new Date(campaign.last_run).toLocaleDateString('vi-VN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Chưa bao giờ'}
                   </div>
                 </div>
               </div>
@@ -107,13 +107,13 @@ export default async function CampaignsPage() {
             <div className="bg-zinc-100 p-6 rounded-[2rem] mb-6">
               <RefreshCw className="h-12 w-12 text-zinc-300 animate-spin-slow" />
             </div>
-            <h3 className="text-2xl font-black text-zinc-900 tracking-tight">No Active Campaigns</h3>
+            <h3 className="text-2xl font-black text-zinc-900 tracking-tight">Chưa có Chiến dịch Active</h3>
             <p className="text-zinc-500 mt-2 font-medium tracking-tight">
-              Start by selecting a segment and connecting it to your favorite automation apps.
+              Bắt đầu bằng cách chọn một phân khúc và kết nối nó với các ứng dụng tự động hóa yêu thích của bạn.
             </p>
             <Link href="/campaigns/new" className="mt-8">
               <Button variant="outline" className="rounded-xl border-2 border-zinc-200 px-8 py-6 font-bold hover:bg-zinc-900 hover:text-white hover:border-zinc-900 transition-all">
-                Get Started
+                Bắt đầu ngay
               </Button>
             </Link>
           </div>

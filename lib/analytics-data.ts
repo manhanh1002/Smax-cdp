@@ -803,3 +803,57 @@ export async function getLifecycleData() {
     conversionDistribution,
   }
 }
+
+// ──────────────────────────── DASHBOARD SIDEBAR ────────────────────────────
+export async function getDashboardSidebarStats() {
+  const supabase = await createClient()
+
+  // 1. Get segment count
+  const { count: segmentCount } = await supabase.from('dynamic_segments').select('*', { count: 'exact', head: true })
+
+  // 2. Dates for filtering
+  const now = new Date()
+  
+  // Today start (00:00:00)
+  const todayStart = new Date(now)
+  todayStart.setHours(0, 0, 0, 0)
+
+  // Start of week (Monday 00:00:00)
+  const currentDay = now.getDay()
+  const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1
+  const weekStart = new Date(now)
+  weekStart.setDate(now.getDate() - distanceToMonday)
+  weekStart.setHours(0, 0, 0, 0)
+
+  // 3. Parallel fetch core tables (JS filtering is faster for these counts < 5k rows)
+  const [leads, biz, plans] = await Promise.all([
+    fetchAllPages(async (from, to) => 
+      supabase.from('marketing_leads').select('created_at').range(from, to)
+    ),
+    fetchAllPages(async (from, to) => 
+      supabase.from('biz_plans').select('current_plan, conversion_date').range(from, to)
+    ),
+    fetchAllPages(async (from, to) => 
+      supabase.from('purchased_plans').select('amount_vnd, is_first_purchase, purchase_date').range(from, to)
+    ),
+  ])
+
+  const calculateForRange = (startDate: Date) => {
+    const leadsCount = leads.filter(l => l.created_at && new Date(l.created_at) >= startDate).length
+    const freeBizCount = biz.filter(b => {
+      const plan = (b.current_plan || '').toUpperCase()
+      return plan === 'FREE' && b.conversion_date && new Date(b.conversion_date) >= startDate
+    }).length
+    const newProCount = plans.filter(p => p.is_first_purchase && p.purchase_date && new Date(p.purchase_date) >= startDate).length
+    const revenue = plans.filter(p => p.purchase_date && new Date(p.purchase_date) >= startDate)
+                         .reduce((sum, p) => sum + (Number(p.amount_vnd) || 0), 0)
+    
+    return { leadsCount, freeBizCount, newProCount, revenue }
+  }
+
+  return {
+    segmentCount: segmentCount || 0,
+    today: calculateForRange(todayStart),
+    thisWeek: calculateForRange(weekStart)
+  }
+}

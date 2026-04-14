@@ -20,11 +20,11 @@ interface AnalyticsTabsProps {
 }
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: BarChart3 },
-  { id: 'revenue', label: 'Revenue', icon: DollarSign },
-  { id: 'marketing', label: 'Marketing', icon: Megaphone },
-  { id: 'product', label: 'Product', icon: Layers },
-  { id: 'lifecycle', label: 'Lifecycle', icon: Users },
+  { id: 'overview', label: 'Tổng quan', icon: BarChart3 },
+  { id: 'revenue', label: 'Doanh thu', icon: DollarSign },
+  { id: 'marketing', label: 'Tiếp thị', icon: Megaphone },
+  { id: 'product', label: 'Sản phẩm', icon: Layers },
+  { id: 'lifecycle', label: 'Vòng đời', icon: Users },
 ]
 
 function TabSkeleton() {
@@ -90,23 +90,23 @@ export function AnalyticsTabs({
       </TabsList>
 
       <TabsContent value="overview" className="mt-6">
-        {overviewData ? <OverviewTab data={overviewData} /> : <TabEmpty tab="Overview" />}
+        {overviewData ? <OverviewTab data={overviewData} /> : <TabEmpty tab="Tổng quan" />}
       </TabsContent>
-
+ 
       <TabsContent value="revenue" className="mt-6">
-        {revenueData ? <RevenueTab data={revenueData} /> : <TabEmpty tab="Revenue" />}
+        {revenueData ? <RevenueTab data={revenueData} /> : <TabEmpty tab="Doanh thu" />}
       </TabsContent>
-
+ 
       <TabsContent value="marketing" className="mt-6">
-        {marketingData ? <MarketingTab data={marketingData} /> : <TabEmpty tab="Marketing" />}
+        {marketingData ? <MarketingTab data={marketingData} /> : <TabEmpty tab="Tiếp thị" />}
       </TabsContent>
-
+ 
       <TabsContent value="product" className="mt-6">
-        {productData ? <ProductAdoptionTab data={productData} /> : <TabEmpty tab="Product" />}
+        {productData ? <ProductAdoptionTab data={productData} /> : <TabEmpty tab="Sản phẩm" />}
       </TabsContent>
-
+ 
       <TabsContent value="lifecycle" className="mt-6">
-        {lifecycleData ? <LifecycleTab data={lifecycleData} /> : <TabEmpty tab="Lifecycle" />}
+        {lifecycleData ? <LifecycleTab data={lifecycleData} /> : <TabEmpty tab="Vòng đời" />}
       </TabsContent>
     </Tabs>
   )

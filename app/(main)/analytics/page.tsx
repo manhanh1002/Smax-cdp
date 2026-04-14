@@ -35,7 +35,7 @@ export default async function AnalyticsPage() {
             <BarChart3 className="size-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-zinc-900">Analytics Command Center</h1>
+            <h1 className="text-xl font-bold tracking-tight text-zinc-900">Trung tâm Chỉ huy Phân tích</h1>
             <p className="text-xs text-zinc-400 font-medium mt-0.5">
               Sales · Marketing · Product · Lifecycle — Tất cả trả lời trong 5 giây.
             </p>
@@ -43,7 +43,7 @@ export default async function AnalyticsPage() {
         </div>
         <div className="flex items-center gap-2 text-[11px] text-zinc-400">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          Auto-refresh mỗi 5 phút
+          Tự động làm mới mỗi 5 phút
         </div>
       </div>
 

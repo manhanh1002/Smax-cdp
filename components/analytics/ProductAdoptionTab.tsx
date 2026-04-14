@@ -37,10 +37,10 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
     <div className="flex flex-col gap-6">
       {/* ── Scorecards ── */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <ScoreCard icon={<Eye className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Total Sessions (30D)" value={scorecards.totalSessions30d.toLocaleString()} />
-        <ScoreCard icon={<Flame className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Most Used Module" value={scorecards.mostUsedModule.length > 20 ? scorecards.mostUsedModule.substring(0, 17) + '...' : scorecards.mostUsedModule} />
-        <ScoreCard icon={<Activity className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Total Events (30D)" value={scorecards.totalEvents30d.toLocaleString()} />
-        <ScoreCard icon={<Zap className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Events / Session" value={`${scorecards.bounceRateAvg}`} />
+        <ScoreCard icon={<Eye className="size-5" />} iconBg="bg-blue-50 text-blue-600" label="Tổng Phiên (30 ngày)" value={scorecards.totalSessions30d.toLocaleString()} />
+        <ScoreCard icon={<Flame className="size-5" />} iconBg="bg-amber-50 text-amber-600" label="Tính năng dùng nhiều nhất" value={scorecards.mostUsedModule.length > 20 ? scorecards.mostUsedModule.substring(0, 17) + '...' : scorecards.mostUsedModule} />
+        <ScoreCard icon={<Activity className="size-5" />} iconBg="bg-emerald-50 text-emerald-600" label="Tổng Sự kiện (30 ngày)" value={scorecards.totalEvents30d.toLocaleString()} />
+        <ScoreCard icon={<Zap className="size-5" />} iconBg="bg-indigo-50 text-indigo-600" label="Sự kiện / Phiên" value={`${scorecards.bounceRateAvg}`} />
       </div>
 
       {/* ── Charts Row 1 ── */}
@@ -50,7 +50,7 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Flame className="size-4 text-amber-500" />
-              Module Usage Ranking (Top 10)
+              Xếp hạng Sử dụng Tính năng (Top 10)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -67,13 +67,13 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
                       return (
                         <div className="bg-zinc-900 text-white text-xs rounded-xl py-2 px-3 shadow-lg">
                           <p className="font-semibold">{d.fullName}</p>
-                          <p>Users: {d.users.toLocaleString()}</p>
-                          <p>Events: {d.events.toLocaleString()}</p>
+                          <p>Người dùng: {d.users.toLocaleString()}</p>
+                          <p>Sự kiện: {d.events.toLocaleString()}</p>
                         </div>
                       )
                     }}
                   />
-                  <Bar dataKey="users" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={16} name="Active Users" />
+                  <Bar dataKey="users" fill="#3b82f6" radius={[0, 6, 6, 0]} barSize={16} name="Người dùng Active" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -85,7 +85,7 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
               <Activity className="size-4 text-blue-500" />
-              Usage Trend by Module (30D)
+              Xu hướng Sử dụng theo Tính năng (30 ngày)
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
@@ -133,9 +133,9 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
             <Zap className="size-4 text-indigo-500" />
-            Engagement Scatter — Sessions vs Depth
+            Ma trận Tương tác — Phiên vs Độ sâu
           </CardTitle>
-          <p className="text-[11px] text-zinc-400 mt-1">X: Sessions · Y: Events per Session · Bubble: Total Events</p>
+          <p className="text-[11px] text-zinc-400 mt-1">X: Số phiên · Y: Sự kiện/Phiên · Bong bóng: Tổng sự kiện</p>
         </CardHeader>
         <CardContent className="pt-2 pb-4">
           <div className="h-[350px]">
@@ -145,23 +145,23 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
                 <XAxis
                   dataKey="sessions"
                   type="number"
-                  name="Sessions"
+                  name="Số phiên"
                   tick={{ fontSize: 11, fill: '#a1a1aa' }}
                   tickLine={false}
                   axisLine={{ stroke: '#e4e4e7' }}
                   tickFormatter={(v) => formatVNDShort(v)}
-                  label={{ value: 'Sessions', position: 'bottom', fontSize: 11, fill: '#a1a1aa' }}
+                  label={{ value: 'Số phiên', position: 'bottom', fontSize: 11, fill: '#a1a1aa' }}
                 />
                 <YAxis
                   dataKey="eventsPerSession"
                   type="number"
-                  name="Events/Session"
+                  name="Sự kiện/Phiên"
                   tick={{ fontSize: 11, fill: '#a1a1aa' }}
                   tickLine={false}
                   axisLine={false}
-                  label={{ value: 'Events / Session', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#a1a1aa' }}
+                  label={{ value: 'Sự kiện / Phiên', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#a1a1aa' }}
                 />
-                <ZAxis dataKey="totalEvents" range={[60, 600]} name="Total Events" />
+                <ZAxis dataKey="totalEvents" range={[60, 600]} name="Tổng sự kiện" />
                 <Tooltip
                   content={({ payload }) => {
                     if (!payload || !payload[0]) return null
@@ -169,9 +169,9 @@ export function ProductAdoptionTab({ data }: ProductAdoptionTabProps) {
                     return (
                       <div className="bg-zinc-900 text-white text-xs rounded-xl py-2 px-3 shadow-lg">
                         <p className="font-semibold">{d.fullName}</p>
-                        <p>Sessions: {d.sessions.toLocaleString()}</p>
-                        <p>Events/Session: {d.eventsPerSession}</p>
-                        <p>Total Events: {d.totalEvents.toLocaleString()}</p>
+                        <p>Số phiên: {d.sessions.toLocaleString()}</p>
+                        <p>Sự kiện/Phiên: {d.eventsPerSession}</p>
+                        <p>Tổng sự kiện: {d.totalEvents.toLocaleString()}</p>
                       </div>
                     )
                   }}

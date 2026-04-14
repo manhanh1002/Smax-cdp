@@ -25,23 +25,23 @@ export default function LoginPage({
         
         <div className="relative z-10 max-w-lg">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-8">
-            <ShieldCheck className="size-3 text-emerald-500" /> Secure Enterprise Access
+            <ShieldCheck className="size-3 text-emerald-500" /> Truy cập Doanh nghiệp Bảo mật
           </div>
           <h1 className="text-6xl font-black text-white tracking-tighter leading-[0.9]">
             Smax <span className="text-zinc-500">Analytics</span>
           </h1>
           <p className="mt-8 text-xl text-zinc-400 font-medium leading-relaxed">
-            The mission-critical intelligence platform for modern business operations and customer lifecycle management.
+            Nền tảng phân tích dữ liệu quan trọng cho vận hành doanh nghiệp và quản lý vòng đời khách hàng.
           </p>
           
           <div className="mt-20 grid grid-cols-2 gap-8 border-t border-zinc-800 pt-12">
             <div>
               <div className="text-3xl font-black text-white">438K+</div>
-              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Events Tracked/Mo</div>
+              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Sự kiện/Tháng</div>
             </div>
             <div>
               <div className="text-3xl font-black text-white">2.4B+</div>
-              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">VND Revenue Managed</div>
+              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Doanh thu quản lý</div>
             </div>
           </div>
         </div>
@@ -51,14 +51,14 @@ export default function LoginPage({
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md space-y-10">
           <div className="space-y-2">
-            <h2 className="text-3xl font-black text-zinc-900 tracking-tight">Access Portal</h2>
-            <p className="text-zinc-500 font-medium italic text-sm">Welcome back. Enter your credentials to verify identity.</p>
+            <h2 className="text-3xl font-black text-zinc-900 tracking-tight">Cổng Truy cập</h2>
+            <p className="text-zinc-500 font-medium italic text-sm">Chào mừng quay trở lại. Vui lòng nhập thông tin để xác minh danh tính.</p>
           </div>
 
           <form action={login} onSubmit={() => setIsLoading(true)} className="space-y-6">
             <div className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Work Email</Label>
+                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-zinc-400 ml-1">Email Công việc</Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
                   <Input
@@ -74,7 +74,7 @@ export default function LoginPage({
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
-                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Password</Label>
+                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Mật khẩu</Label>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
@@ -101,9 +101,9 @@ export default function LoginPage({
               disabled={isLoading}
               className="w-full h-16 bg-zinc-900 hover:bg-zinc-800 text-white font-black text-lg rounded-2xl shadow-xl shadow-zinc-200 transition-all active:scale-[0.98] group"
             >
-              {isLoading ? "Verifying..." : (
+              {isLoading ? "Đang xác minh..." : (
                 <>
-                  Connect to Dashboard
+                  Kết nối tới Dashboard
                   <ChevronRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                 </>
               )}
@@ -112,10 +112,10 @@ export default function LoginPage({
 
           <div className="pt-8 border-t border-zinc-100 space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase tracking-tighter">
-              <ShieldCheck className="size-3" /> System Status: Operational
+              <ShieldCheck className="size-3" /> Trạng thái hệ thống: Đang hoạt động
             </div>
             <p className="text-[10px] text-zinc-400 font-medium leading-relaxed uppercase tracking-widest">
-              Restricted to authorized personnel only. Registration is managed by system administrators.
+              Chỉ dành cho nhân sự được ủy quyền. Việc đăng ký được quản lý bởi Quản trị viên hệ thống.
             </p>
           </div>
         </div>
