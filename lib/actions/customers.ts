@@ -16,7 +16,7 @@ export async function exportCustomersToCSV(params: {
   const { data: segments } = await supabase.from('dynamic_segments').select('*')
 
   // 2. Build Query (Reusing logic from page.tsx)
-  let query = supabase.from('customer_profiles').select('*')
+  let query: any = supabase.from('customer_profiles').select('*')
 
   if (params.search) {
     query = query.or(`biz_name.ilike.%${params.search}%,phone.ilike.%${params.search}%,email.ilike.%${params.search}%`)
@@ -121,7 +121,7 @@ export async function exportCustomersToCSV(params: {
     "Total Visitors (All Time)", "Modules Used", "Last Expiry Date", "Conversion Date"
   ]
 
-  const rows = customers.map(c => {
+  const rows = customers.map((c: any) => {
     // Simplify modules usage
     const modules = Array.isArray(c.module_usage) 
       ? c.module_usage.map((m: any) => m.title).join('; ')
@@ -144,6 +144,6 @@ export async function exportCustomersToCSV(params: {
     ]
   })
 
-  const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+  const csvContent = [headers.join(','), ...rows.map((r: any) => r.join(','))].join('\n')
   return csvContent
 }

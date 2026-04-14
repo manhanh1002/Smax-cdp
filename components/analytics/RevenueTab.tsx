@@ -73,7 +73,7 @@ export function RevenueTab({ data }: RevenueTabProps) {
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickFormatter={(v) => formatVNDShort(v)} tickLine={false} axisLine={false} width={55} />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatVND(value), name === 'newRev' ? 'New' : 'Expansion']}
+                    formatter={(value: any, name: any) => [formatVND(value), name === 'newRev' ? 'New' : 'Expansion']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                   />
                   <Legend formatter={(v) => (v === 'newRev' ? 'New Revenue' : 'Expansion')} iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
@@ -101,7 +101,7 @@ export function RevenueTab({ data }: RevenueTabProps) {
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickFormatter={(v) => formatVNDShort(v)} tickLine={false} axisLine={false} width={55} />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatVND(value), name]}
+                    formatter={(value: any, name: any) => [formatVND(value), name]}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                   />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />

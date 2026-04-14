@@ -62,7 +62,7 @@ export function MarketingTab({ data }: MarketingTabProps) {
                   <XAxis type="number" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#52525b' }} tickLine={false} axisLine={false} width={130} />
                   <Tooltip
-                    formatter={(value: number, name: string) => [value, name === 'leads' ? 'Total Leads' : 'Converted']}
+                    formatter={(value: any, name: any) => [value, name === 'leads' ? 'Total Leads' : 'Converted']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                   />
                   <Bar dataKey="leads" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={14} name="leads" />

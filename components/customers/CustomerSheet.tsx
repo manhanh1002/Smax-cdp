@@ -200,7 +200,7 @@ export default function CustomerSheet({ customer, open, onOpenChange }: Customer
                 <div className="absolute left-[15px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-emerald-500/50 via-zinc-200 to-transparent z-0" />
 
                 <div className="space-y-8">
-                  {transactions.length > 0 ? transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((t, idx) => (
+                  {transactions.length > 0 ? [...transactions].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((t: any, idx: number) => (
                     <div key={idx} className="relative group">
                       {/* Timeline Dot - Glassmorphism */}
                       <div className="absolute -left-[25px] mt-1.5 size-[18px] rounded-full border-2 border-white bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)] z-10 transition-transform group-hover:scale-125" />
@@ -266,7 +266,7 @@ export default function CustomerSheet({ customer, open, onOpenChange }: Customer
                   <MousePointerClick className="size-4" /> Most Used Modules / Pages (All Time)
                 </div>
                 <div className="divide-y divide-zinc-100">
-                  {moduleUsage.length > 0 ? moduleUsage.sort((a, b) => b.events - a.events).map((m, idx) => (
+                  {moduleUsage.length > 0 ? [...moduleUsage].sort((a: any, b: any) => b.events - a.events).map((m: any, idx: number) => (
                     <div key={idx} className="p-4 hover:bg-zinc-50/50 transition-colors flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="font-bold text-zinc-900 truncate">{m.title || "Unknown Page"}</div>

@@ -105,7 +105,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                     width={55}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) => [
+                    formatter={(value: any, name: any) => [
                       formatVND(value),
                       name === 'newRev' ? 'New Revenue' : 'Expansion Revenue',
                     ]}
@@ -159,7 +159,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => [`${value} (${((value / totalDonut) * 100).toFixed(1)}%)`, '']}
+                    formatter={(value: any) => [`${value} (${((value / totalDonut) * 100).toFixed(1)}%)`, '']}
                     contentStyle={{
                       background: '#18181b',
                       border: 'none',
@@ -212,7 +212,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                   width={70}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatVND(value), 'Revenue']}
+                  formatter={(value: any) => [formatVND(value), 'Revenue']}
                   contentStyle={{
                     background: '#18181b',
                     border: 'none',

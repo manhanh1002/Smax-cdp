@@ -188,7 +188,7 @@ export function LifecycleTab({ data }: LifecycleTabProps) {
                   <XAxis dataKey="range" tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={{ stroke: '#e4e4e7' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#a1a1aa' }} tickLine={false} axisLine={false} width={35} />
                   <Tooltip
-                    formatter={(value: number) => [value, 'Customers']}
+                    formatter={(value: any, name: any) => [value, 'Customers']}
                     contentStyle={{ background: '#18181b', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                     labelFormatter={(v) => `${v} days`}
                   />

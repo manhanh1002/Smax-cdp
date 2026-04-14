@@ -187,7 +187,7 @@ export default function NewCampaignWizard({ segments }: NewCampaignWizardProps) 
                 <Label htmlFor="segment" className="text-sm font-bold uppercase tracking-widest text-zinc-400">Target Segment</Label>
                 <Select 
                   value={formData.segment_id} 
-                  onValueChange={(v) => setFormData({...formData, segment_id: v})}
+                  onValueChange={(v) => setFormData({...formData, segment_id: v as string})}
                 >
                   <SelectTrigger className="h-14 rounded-xl border-zinc-200 text-lg font-medium">
                     <SelectValue placeholder="Search or select a segment...">

@@ -34,20 +34,20 @@ export async function getOverviewData() {
   // Parallel fetch ALL rows from each table
   const [biz, plans, monthlyPlans, bizWithAlias] = await Promise.all([
     // biz_plans: ~2,423 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('biz_plans')
         .select('status, trial_expiry, sales_rep, current_plan, alias_url')
         .range(from, to)
     ),
     // purchased_plans with amount: ~1,519 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('purchased_plans')
         .select('amount_vnd, is_first_purchase, purchase_date, expiry_date, package_name, alias_url')
         .not('amount_vnd', 'is', null)
         .range(from, to)
     ),
     // purchased_plans for monthly trend: ~1,519 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('purchased_plans')
         .select('amount_vnd, is_first_purchase, purchase_date')
         .not('amount_vnd', 'is', null)
@@ -55,7 +55,7 @@ export async function getOverviewData() {
         .range(from, to)
     ),
     // biz_plans alias mapping: ~2,423 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('biz_plans')
         .select('alias_url, sales_rep')
         .range(from, to)
@@ -174,7 +174,7 @@ export async function getRevenueData() {
   const supabase = await createClient()
 
   // Fetch ALL purchased_plans (~1,519 rows)
-  const plans = await fetchAllPages((from, to) =>
+  const plans = await fetchAllPages(async (from, to) =>
     supabase.from('purchased_plans')
       .select('order_id, biz_name, alias_url, package_name, amount_vnd, purchase_date, expiry_date, is_first_purchase')
       .not('amount_vnd', 'is', null)
@@ -302,19 +302,19 @@ export async function getMarketingData() {
   // Fetch ALL rows from each table
   const [leads, bizList, plansList] = await Promise.all([
     // marketing_leads: ~2,099 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('marketing_leads')
         .select('lead_name, phone, source, campaign, created_at')
         .range(from, to)
     ),
     // biz_plans: ~2,423 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('biz_plans')
         .select('phone, status, alias_url')
         .range(from, to)
     ),
     // purchased_plans: ~1,519 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('purchased_plans')
         .select('alias_url, amount_vnd')
         .not('amount_vnd', 'is', null)
@@ -475,7 +475,7 @@ export async function getProductAdoptionData() {
   const thirtyDaysAgoStr = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   // Only fetch last 30 days (reduces from 438K to ~15-30K rows)
-  const ga4Recent = await fetchAllPages((from, to) =>
+  const ga4Recent = await fetchAllPages(async (from, to) =>
     supabase.from('ga4_page_metrics')
       .select('page_path, page_title, total_users, event_count, date')
       .gte('date', thirtyDaysAgoStr)
@@ -566,20 +566,20 @@ export async function getLifecycleData() {
 
   const [biz, plans, leads] = await Promise.all([
     // biz_plans: ~2,423 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('biz_plans')
         .select('biz_name, status, trial_expiry, conversion_date, sales_rep, current_plan, alias_url, phone')
         .range(from, to)
     ),
     // purchased_plans: ~1,519 rows
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('purchased_plans')
         .select('alias_url, amount_vnd, expiry_date, purchase_date, package_name')
         .not('amount_vnd', 'is', null)
         .range(from, to)
     ),
     // marketing_leads for source attribution
-    fetchAllPages((from, to) =>
+    fetchAllPages(async (from, to) =>
       supabase.from('marketing_leads')
         .select('phone, source')
         .range(from, to)
@@ -770,7 +770,7 @@ export async function getLifecycleData() {
       }
     })
     .sort((a: any, b: any) => {
-      const riskOrder = { critical: 0, at_risk: 1, healthy: 2 }
+      const riskOrder: Record<string, number> = { critical: 0, at_risk: 1, healthy: 2 }
       return riskOrder[a.risk] - riskOrder[b.risk]
     })
     .slice(0, 50)
