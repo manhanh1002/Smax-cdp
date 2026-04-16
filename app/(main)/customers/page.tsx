@@ -1,16 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import CustomerTable from '@/components/customers/CustomerTable'
+import { countAllSegments } from '@/lib/actions/segments'
+import { normalizeRules, applyGroupFilters, type RuleGroup } from '@/lib/filter-utils'
 
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 
-    page?: string; 
-    search?: string; 
-    segmentId?: string; 
-    plan?: string; 
-    ga4?: string; 
-    trial?: string; 
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    segmentId?: string;
+    plan?: string;
+    ga4?: string;
+    trial?: string;
     package?: string;
   }>
 }) {
@@ -26,90 +28,43 @@ export default async function CustomersPage({
 
   const supabase = await createClient()
 
-  // Fetch all segments for the dropdown
+  // 1. Fetch all segments for the dropdown
   const { data: segments } = await supabase.from('dynamic_segments').select('*')
 
-  // Calculate range for pagination
+  // 2. Calculate segment counts in parallel with main query
+  const [segmentCounts] = await Promise.all([
+    countAllSegments()
+  ])
+
+  // 3. Build main query with filters
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
 
-  // 1. Reusable filter applier helper
-  const applyFilters = (qb: any) => {
-    // Text Search
-    if (search) {
-      qb = qb.or(`biz_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
-    }
+  let mainQuery = supabase.from('customer_profiles').select('*', { count: 'exact' })
 
-    // Direct Filters (Only if no segment is selected)
-    if (!segmentId) {
-      if (plan) qb = qb.eq('current_plan', plan)
-      if (trial) qb = qb.eq('biz_status', trial)
-      if (ga4 === 'yes') qb = qb.gt('total_visitors_all_time', 0)
-      else if (ga4 === 'no') qb = qb.eq('total_visitors_all_time', 0)
-      if (pkg) qb = qb.filter('transactions', 'cs', JSON.stringify([{ package_name: pkg }]))
-    } else if (segments) {
-      const activeSegment = segments.find(s => s.id === segmentId)
-      if (activeSegment?.rules) {
-        activeSegment.rules.forEach((rule: any) => {
-          const { field, operator, value } = rule
-          
-          if (operator === 'is_any') {
-            if (field === 'module_used') qb = qb.neq('module_usage', '[]')
-            else qb = qb.not(field, 'is', null)
-          } else if (operator === 'is_empty') {
-            if (field === 'module_used') qb = qb.eq('module_usage', '[]')
-            else qb = qb.is(field, null)
-          } else if (field === 'module_used') {
-            const moduleTitles = Array.isArray(value) ? value : [value]
-            moduleTitles.forEach(title => {
-              qb = qb.filter('module_usage', 'cs', JSON.stringify([{ title }]))
-            })
-          } else if (field.includes('date')) {
-            const days = parseInt(value) || 30
-            const now = new Date()
-            
-            if (field.includes('expiry')) {
-              // FUTURE-oriented logic (Targeting upcoming/past expiries)
-              if (operator === 'within_last') {
-                // Within next X days: Today <= expiry <= Today + X
-                const futureDate = new Date()
-                futureDate.setDate(now.getDate() + days)
-                qb = qb.gte(field, now.toISOString()).lte(field, futureDate.toISOString())
-              } else if (operator === 'older_than') {
-                // Already expired: expiry < Today
-                qb = qb.lt(field, now.toISOString())
-              }
-            } else {
-              // PAST-oriented logic (Targeting historical events like conversion_date)
-              const pastDate = new Date()
-              pastDate.setDate(now.getDate() - days)
-              const iso = pastDate.toISOString()
-              if (operator === 'within_last') qb = qb.gte(field, iso)
-              else if (operator === 'older_than') qb = qb.lt(field, iso)
-            }
-          } else if (operator === 'in') {
-            qb = qb.in(field, Array.isArray(value) ? value : [value])
-          } else {
-            switch (operator) {
-              case '==': qb = qb.eq(field, value); break;
-              case '!=': qb = qb.neq(field, value); break;
-              case '>=': qb = qb.gte(field, value); break;
-              case '<=': qb = qb.lte(field, value); break;
-              case '>': qb = qb.gt(field, value); break;
-              case '<': qb = qb.lt(field, value); break;
-              case 'contains': qb = qb.ilike(field, `%${value}%`); break;
-            }
-          }
-        })
-      }
-    }
-    return qb
+  // Text search
+  if (search) {
+    mainQuery = mainQuery.or(`biz_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
   }
 
-  // Execute Main Paginated Query
-  let mainQuery = supabase.from('customer_profiles').select('*', { count: 'exact' })
-  mainQuery = applyFilters(mainQuery)
-  
+  // Direct Filters (Only if no segment is selected)
+  if (!segmentId) {
+    if (plan) mainQuery = mainQuery.eq('current_plan', plan)
+    if (trial) mainQuery = mainQuery.eq('biz_status', trial)
+    if (ga4 === 'yes') mainQuery = mainQuery.gt('total_visitors_all_time', 0)
+    else if (ga4 === 'no') mainQuery = mainQuery.eq('total_visitors_all_time', 0)
+    if (pkg) mainQuery = mainQuery.filter('transactions', 'cs', JSON.stringify([{ package_name: pkg }]))
+  } else if (segments) {
+    // Segment-based filtering using new recursive filter logic
+    const activeSegment = segments.find((s: any) => s.id === segmentId)
+    if (activeSegment) {
+      const normalized = normalizeRules(activeSegment.rules)
+      normalized.groups.forEach((group: RuleGroup) => {
+        mainQuery = applyGroupFilters(mainQuery, group)
+      })
+    }
+  }
+
   const { data: customers, count, error } = await mainQuery
     .order('total_revenue_vnd', { ascending: false, nullsFirst: false })
     .range(from, to)
@@ -117,7 +72,6 @@ export default async function CustomersPage({
   if (error) {
     console.error('SERVER_ERROR [fetchCustomers]:', JSON.stringify(error, null, 2))
   }
-
 
   // Vietnamese-aware currency parser
   const parseRevenue = (val: any) => {
@@ -131,7 +85,7 @@ export default async function CustomersPage({
     return parseFloat(cleaned) || 0
   }
 
-  // 2. Fetch Stats (Aggregates) - Optimized for Cloud Performance
+  // 4. Fetch Stats (Aggregates) — Optimized for Cloud Performance
   let stats = {
     recordsFetched: 0,
     totalRevenue: 0,
@@ -141,31 +95,46 @@ export default async function CustomersPage({
   }
 
   try {
-    const sPageSize = 1000 
+    const sPageSize = 1000
     const maxToFetch = Math.min(5000, count || 5000)
     let statsData: any[] = []
-    
-    // Fetch sequentially to prevent DB timeouts on heavy views
+
     for (let sFrom = 0; sFrom < maxToFetch; sFrom += sPageSize) {
       let q = supabase
         .from('customer_profiles')
         .select('total_revenue_vnd, current_plan, transactions')
-      q = applyFilters(q)
-      
+
+      // Re-apply same filters to stats query
+      if (search) {
+        q = q.or(`biz_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
+      }
+      if (!segmentId) {
+        if (plan) q = q.eq('current_plan', plan)
+        if (trial) q = q.eq('biz_status', trial)
+        if (ga4 === 'yes') q = q.gt('total_visitors_all_time', 0)
+        else if (ga4 === 'no') q = q.eq('total_visitors_all_time', 0)
+        if (pkg) q = q.filter('transactions', 'cs', JSON.stringify([{ package_name: pkg }]))
+      } else if (segments) {
+        const activeSegment = segments.find((s: any) => s.id === segmentId)
+        if (activeSegment) {
+          const normalized = normalizeRules(activeSegment.rules)
+          normalized.groups.forEach((group: RuleGroup) => {
+            q = applyGroupFilters(q, group)
+          })
+        }
+      }
+
       const { data, error } = await q.range(sFrom, sFrom + sPageSize - 1)
       if (error) {
         console.error(`STATS_BATCH_ERROR at offset ${sFrom}:`, error.message || JSON.stringify(error))
-        break // Stop fetching further if one batch fails
+        break
       }
       if (data) {
         statsData = statsData.concat(data)
-        // If we fetched fewer than requested, we've reached the end
-        if (data.length < sPageSize) {
-          break
-        }
+        if (data.length < sPageSize) break
       }
     }
-    
+
     if (statsData.length > 0) {
       stats = {
         recordsFetched: statsData.length,
@@ -185,6 +154,12 @@ export default async function CustomersPage({
     console.error('CRITICAL_STATS_ERROR:', err)
   }
 
+  // Transform segment counts for ClientTable
+  const segmentsWithCounts = (segments || []).map((seg: any) => ({
+    ...seg,
+    customerCount: segmentCounts[seg.id] ?? null
+  }))
+
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <div className="flex flex-col gap-2">
@@ -194,12 +169,12 @@ export default async function CustomersPage({
         </p>
       </div>
 
-      <CustomerTable 
-        initialData={customers || []} 
+      <CustomerTable
+        initialData={customers || []}
         totalCount={count || stats.recordsFetched}
         currentPage={page}
         pageSize={pageSize}
-        segments={segments || []}
+        segments={segmentsWithCounts}
         stats={stats}
       />
     </div>
