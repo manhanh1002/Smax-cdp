@@ -19,16 +19,17 @@ function parseRevenue(val: any): number {
 
 function computeStats(statsData: any[]) {
   if (!statsData || statsData.length === 0) {
-    return { recordsFetched: 0, totalRevenue: 0, proCount: 0, freeCount: 0, miscPaidRevenue: 0 }
+    return { recordsFetched: 0, totalRevenue: 0, proCount: 0, freeCount: 0, miscPaidRevenue: 0, totalCount: 0 }
   }
   let miscPaidRevenue = 0
   statsData.forEach(c => {
-    const trans = Array.isArray(c.transactions) ? c.transactions : []
-    trans.forEach((t: any) => {
-      if (['ZALO_ZNS', 'GEN_AI'].includes(t.package_name?.toUpperCase())) {
-        miscPaidRevenue += parseRevenue(t.amount_vnd)
-      }
-    })
+    if (Array.isArray(c.transactions)) {
+      c.transactions.forEach((t: any) => {
+        if (['ZALO_ZNS', 'GEN_AI'].includes(t.package_name?.toUpperCase())) {
+          miscPaidRevenue += parseRevenue(t.amount_vnd)
+        }
+      })
+    }
   })
   return {
     recordsFetched: statsData.length,
@@ -36,14 +37,13 @@ function computeStats(statsData: any[]) {
     proCount: statsData.filter(c => c.current_plan?.toUpperCase() === 'PRO').length,
     freeCount: statsData.filter(c => c.current_plan?.toUpperCase() === 'FREE').length,
     miscPaidRevenue,
+    totalCount: statsData.length, // fallback count from stats
   }
 }
 
 function applyFilters(
   qb: any,
-  opts: {
-    search: string; segmentId: string; plan: string; trial: string; ga4: string; pkg: string; segments: any[]
-  }
+  opts: { search: string; segmentId: string; plan: string; trial: string; ga4: string; pkg: string; segments: any[] }
 ) {
   if (opts.search) {
     qb = qb.or(`biz_name.ilike.%${opts.search}%,phone.ilike.%${opts.search}%,email.ilike.%${opts.search}%`)
@@ -92,42 +92,50 @@ export default async function CustomersPage({
 
   const supabase = await createClient()
 
-  // Step 1: Fetch segments (small table, fast) — needed for segment filter
-  const { data: segments } = await supabase
-    .from('dynamic_segments')
-    .select('*')
-
-  const segList = segments || []
-  const filterOpts = { search, segmentId, plan, trial, ga4, pkg, segments: segList }
-
-  // Step 2: Run heavy queries in PARALLEL
-  const [
-    { data: customers, count, error },
-    statsData,
-    segmentCounts,
-  ] = await Promise.all([
-    // Main paginated query
-    (async () => {
-      let q = supabase.from('customer_profiles').select('*', { count: 'exact' })
-      q = applyFilters(q, filterOpts)
-      return q.order('total_revenue_vnd', { ascending: false, nullsFirst: false }).range(from, to)
-    })(),
-    // Stats: 1 batch up to 5000 rows (no loop)
-    (async () => {
-      let q = supabase.from('customer_profiles').select('total_revenue_vnd, current_plan, transactions')
-      q = applyFilters(q, filterOpts)
-      const { data } = await q.range(0, 4999)
-      return data || []
-    })(),
-    // Count all segments in parallel
-    countAllSegments(),
-  ])
-
-  if (error) {
-    console.error('SERVER_ERROR [fetchCustomers]:', JSON.stringify(error, null, 2))
+  // 1. Fetch segments (small table, fast)
+  let segList: any[] = []
+  try {
+    const { data } = await supabase.from('dynamic_segments').select('*')
+    segList = data || []
+  } catch (e) {
+    console.error('Failed to fetch segments:', e)
   }
 
-  const stats = computeStats(statsData)
+  const filterOpts = { search, segmentId, plan, trial, ga4, pkg, segments: segList }
+
+  // 2. Fetch customers paginated (without count — count from stats instead)
+  let customers: any[] = []
+  try {
+    let q = supabase.from('customer_profiles').select('*')
+    q = applyFilters(q, filterOpts)
+    const result = await q
+      .order('total_revenue_vnd', { ascending: false, nullsFirst: false })
+      .range(from, to)
+    customers = result.data || []
+  } catch (e) {
+    console.error('Failed to fetch customers:', e)
+  }
+
+  // 3. Fetch stats (large batch — enough to count total from its length)
+  let stats = { recordsFetched: 0, totalRevenue: 0, proCount: 0, freeCount: 0, miscPaidRevenue: 0, totalCount: 0 }
+  try {
+    let q = supabase.from('customer_profiles').select('total_revenue_vnd, current_plan, transactions')
+    q = applyFilters(q, filterOpts)
+    const result = await q.range(0, 9999) // fetch up to 10k rows for stats
+    stats = computeStats(result.data || [])
+  } catch (e) {
+    console.error('Failed to compute stats:', e)
+  }
+
+  // 4. Segment counts (not blocking — run last, don't await if slow)
+  let segmentCounts: Record<string, number> = {}
+  try {
+    // Only wait for segment counts if they come back quickly (5s timeout)
+    const timeout = new Promise<Record<string, number>>(resolve => setTimeout(() => resolve({}), 5000))
+    segmentCounts = await Promise.race([countAllSegments(), timeout])
+  } catch (e) {
+    console.error('Failed to count segments:', e)
+  }
 
   const segmentsWithCounts = segList.map((seg: any) => ({
     ...seg,
@@ -144,8 +152,8 @@ export default async function CustomersPage({
       </div>
 
       <CustomerTable
-        initialData={customers || []}
-        totalCount={count || stats.recordsFetched}
+        initialData={customers}
+        totalCount={stats.totalCount || customers.length}
         currentPage={page}
         pageSize={pageSize}
         segments={segmentsWithCounts}
