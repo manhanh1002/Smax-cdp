@@ -141,28 +141,25 @@ export async function countAllSegments(): Promise<Record<string, number>> {
     .from('dynamic_segments')
     .select('id, rules, match_type')
 
-  if (error || !segments) return {}
+  if (error || !segments || segments.length === 0) return {}
 
-  const counts: Record<string, number> = {}
-
-  for (const seg of segments) {
+  // Build all queries in parallel
+  const promises = segments.map(async (seg) => {
     const normalized = normalizeRules(seg.rules)
-    if (normalized.groups.length === 0) {
-      counts[seg.id] = 0
-      continue
-    }
+    if (normalized.groups.length === 0) return { id: seg.id, count: 0 }
 
-    try {
-      let query = supabase.from('customer_profiles').select('*', { count: 'exact', head: true })
-      normalized.groups.forEach((group: RuleGroup) => {
-        query = applyGroupFilters(query, group)
-      })
-      const { count } = await query
-      counts[seg.id] = count || 0
-    } catch {
-      counts[seg.id] = -1
-    }
-  }
+    let query = supabase.from('customer_profiles').select('*', { count: 'exact', head: true })
+    normalized.groups.forEach((group: RuleGroup) => {
+      query = applyGroupFilters(query, group)
+    })
+
+    const { count, error: qError } = await query
+    return { id: seg.id, count: qError ? -1 : (count || 0) }
+  })
+
+  const results = await Promise.all(promises)
+  const counts: Record<string, number> = {}
+  results.forEach(({ id, count }) => { counts[id] = count })
 
   return counts
 }

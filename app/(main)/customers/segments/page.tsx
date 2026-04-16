@@ -10,27 +10,25 @@ const AVAILABLE_PACKAGES = ['PRO', 'ZALO_ZNS', 'GEN_AI']
 export default async function SegmentsPage() {
   const supabase = await createClient()
 
-  // Fetch existing segments
-  const { data: segments, error } = await supabase
-    .from('dynamic_segments')
-    .select('*')
-    .order('created_at', { ascending: false })
+  // Run all queries in PARALLEL
+  const [
+    { data: segments, error },
+    { data: moduleData },
+    segmentCounts,
+  ] = await Promise.all([
+    // Fetch existing segments
+    supabase.from('dynamic_segments').select('*').order('created_at', { ascending: false }),
+    // Fetch unique module titles
+    supabase.from('unique_ga4_modules').select('page_title'),
+    // Count all segments in parallel
+    countAllSegments(),
+  ])
 
   if (error) {
     console.error('Error fetching segments:', error)
   }
 
-  // Fetch unique module titles
-  const { data: moduleData } = await supabase
-    .from('unique_ga4_modules')
-    .select('page_title')
-
-  const uniqueModules = moduleData?.map(m => m.page_title) || []
-
-  // Compute segment counts (parallel)
-  const segmentCounts = await countAllSegments()
-
-  // Attach counts to segments
+  const uniqueModules = moduleData?.map((m: any) => m.page_title) || []
   const segmentsWithCounts = (segments || []).map((seg: any) => ({
     ...seg,
     customerCount: segmentCounts[seg.id] ?? null
